@@ -2,41 +2,63 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: import.meta.env.DEV ? 'http://localhost:8000' : 'https://back-slash-back-server.vercel.app',
+    baseURL: import.meta.env.DEV 
+        ? 'http://localhost:8000' 
+        : 'https://back-slash-back-server.vercel.app',
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
     },
-    timeout: 10000, // 10 second timeout
+    timeout: 30000, // 30 second timeout
     validateStatus: status => status >= 200 && status < 500 // Accept all responses to handle them in the catch block
 });
 
 // Add request interceptor for logging
 api.interceptors.request.use(request => {
-    console.log('Starting Request:', request);
+    console.log('Starting Request:', {
+        url: request.url,
+        method: request.method,
+        headers: request.headers,
+        data: request.data
+    });
     return request;
 });
 
 // Add response interceptor for logging
 api.interceptors.response.use(
     response => {
-        console.log('Response:', response);
+        console.log('Response:', {
+            status: response.status,
+            headers: response.headers,
+            data: response.data
+        });
         return response;
     },
     error => {
+        console.error('API Error:', {
+            message: error.message,
+            code: error.code,
+            response: error.response?.data,
+            status: error.response?.status
+        });
+
         if (error.code === 'ECONNABORTED') {
-            console.error('Request timeout');
             return Promise.reject(new Error('Request timed out. Please try again.'));
         }
+        
         if (!error.response) {
-            console.error('Network Error:', error);
             return Promise.reject(new Error('Network error. Please check your connection.'));
         }
-        console.error('Response Error:', {
-            status: error.response?.status,
-            data: error.response?.data,
-            message: error.message,
-            config: error.config
-        });
+
+        // Handle specific error cases
+        if (error.response.status === 404) {
+            return Promise.reject(new Error('API endpoint not found.'));
+        }
+        
+        if (error.response.status === 500) {
+            return Promise.reject(new Error('Server error. Please try again later.'));
+        }
+
         return Promise.reject(error);
     }
 );
