@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: import.meta.env.DEV ? 'http://localhost:8000' : 'https://backslash-backend.vercel.app',
+    baseURL: import.meta.env.DEV ? 'http://localhost:8000' : 'https://back-slash-back-server.vercel.app',
     headers: {
         'Content-Type': 'application/json'
     },

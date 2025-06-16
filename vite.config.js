@@ -7,13 +7,14 @@ export default defineConfig({
     port: 5173,
     host: true,
     allowedHosts: [
-      'backslash-front.vercel.app',
+      'back-slash-front-ui.vercel.app',
       'localhost',
       '127.0.0.1'
     ],
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        // target: 'http://localhost:8000',
+        target: 'https://back-slash-back-server.vercel.app/',
         changeOrigin: true,
         secure: false,
       }
